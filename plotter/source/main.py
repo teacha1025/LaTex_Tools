@@ -50,18 +50,18 @@ def plot(data:[]):
             else:
                 ax1.scatter(x,y,marker='.',s=80,color=data[i].color,label=data[i].label)
     
-    ax1.set_xlabel(x_label, fontsize=15)
-    ax1.set_ylabel(y1_label, fontsize=15)
+    ax1.set_xlabel(x_label, fontsize=15, fontname ='MS Gothic')
+    ax1.set_ylabel(y1_label, fontsize=15, fontname ='MS Gothic')
     ax1.grid(True)
     if flag:
-        ax2.set_ylabel(y2_label, fontsize=15)
+        ax2.set_ylabel(y2_label, fontsize=15, fontname ='MS Gothic')
     
     if(flag):
         h1,l1 = ax1.get_legend_handles_labels()
         h2,l2 = ax2.get_legend_handles_labels()
-        plt.legend(h1+h2,l1+l2,bbox_to_anchor=(1.15, 0.5), loc='center left', borderaxespad=0, fontsize=12);
+        plt.legend(h1+h2,l1+l2,bbox_to_anchor=(1.15, 0.5), loc='center left', borderaxespad=0, fontsize=12, prop = {"family" : "MS Gothic"});
     else:
-        plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0, fontsize=12)            
+        plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0, fontsize=12, prop = {"family" : "MS Gothic"})            
 
     
     
@@ -88,7 +88,7 @@ class data_wizard:
             [[sg.Checkbox(self.imp_name_list[0], default=self.data.enable)]],
             [[sg.Checkbox(self.imp_name_list[1], default=self.data.x)]],
             [[sg.Checkbox(self.imp_name_list[2], default=self.data.axis2)]],
-            [[sg.Text('ラベル名'), sg.InputText(self.data.label, size=(20,1))]],
+            [[sg.Text('ラベル名'), sg.InputText(self.data.label, size=(20,1), key='-LABEL-')]],
             [[sg.Text('色'), sg.Input(enable_events=True, key='-COLOR-', size=(10,1)), sg.ColorChooserButton('色選択', key = '-COLOR_BUTTON-')]]
         ]
         self.layout = [
@@ -111,6 +111,7 @@ class data_wizard:
                 except:
                     continue
             elif event == "OK":
+                self.data.label = values['-LABEL-']
                 for name, check in zip(self.imp_name_list, values.values()):
                     if name is self.imp_name_list[0]:
                         self.data.enable = check
@@ -195,6 +196,8 @@ y2_max = 100.0
 x_label = 'X軸'
 y1_label = 'Y軸1'
 y2_label = 'Y軸2'
+
+
 while flag:
     # レイアウト作成
     xaxis = sg.Frame('',[[sg.Text('X軸', font=('メイリオ', 12))],[sg.InputText(x_min, key='-X_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(x_max, key='-X_MAX-', size =(5,1))],[sg.InputText(x_label, key='-X_LABEL-', size =(12,1))]])
@@ -204,7 +207,7 @@ while flag:
     frameL = sg.Frame('',[[sg.Canvas(key='-CANVAS-')], 
                             [buttons,xaxis,y1axis,y2axis]],size=(960,760))
     
-    col = [[sg.Text(d.label, font=('メイリオ', 10), size=(12,1)), sg.Button("設定", font=('メイリオ', 8), key=f'Edit_{d.id}')] for d in data]
+    col = [[sg.Text(d.label, font=('メイリオ', 10), size=(12,1), key=f'Label_{d.id}'), sg.Button("設定", font=('メイリオ', 8), key=f'Edit_{d.id}')] for d in data]
     frameR = sg.Frame('',[
             [sg.Button('読込', key='import'), sg.Button('保存', key='Save')],
             [sg.Col(col, scrollable=True, vertical_scroll_only=True, size=(240, 640))]
@@ -263,6 +266,8 @@ while flag:
             x_label = values['-X_LABEL-']
             y1_label = values['-Y1_LABEL-']
             y2_label = values['-Y2_LABEL-']
+            
+            window[f'Label_{id}'].update(data[id].label)
             
             fig.clear()
             ax1 = fig.add_subplot(1,1,1)
