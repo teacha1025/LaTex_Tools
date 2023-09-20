@@ -3,12 +3,12 @@ import PySimpleGUI as sg
 class main:
     def __init__ (self):
         frameL = sg.Frame('', [
-            [sg.Text('入力')],[sg.Multiline(font=('メイリオ',8),size=(60,4),key='-ELEMENT-')],[sg.Multiline(font=('メイリオ', 8),size=(60,94),key = '-INPUT-')],
-            ], size=(460,800))
+            [sg.Text('入力')],[sg.Multiline(font=('メイリオ',8),size=(100,4),key='-ELEMENT-')],[sg.Multiline(font=('メイリオ', 8),size=(100,94),key = '-INPUT-')],
+            ], size=(660,800))
         button_convert = sg.Button('➡', font=('メイリオ', 8), key = '-CONVERT-')
         frameR = sg.Frame('', [
-            [sg.Text('出力')],[sg.Multiline(font=('メイリオ', 8),size=(60,100), key = '-OUTPUT-', disabled=True)],
-            ], size=(460,800))
+            [sg.Text('出力')],[sg.Multiline(font=('メイリオ', 8),size=(100,100), key = '-OUTPUT-', disabled=True)],
+            ], size=(660,800))
         self.layout = [
             [frameL,button_convert, frameR]
         ]

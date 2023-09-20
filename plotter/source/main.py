@@ -237,7 +237,7 @@ while flag:
         elif event == "Save":
             if(len(data) == 0):
                 continue
-            path = sg.popup_get_file('保存先を選択してください', default_path="../fig/", save_as=True, multiple_files=False, file_types=(("PNG", "*.png"),("svg", "*.svg"),("JPG","*.jpg"),("TIFF", "*.tif"),("PDF", "*.pdf"),))
+            path = sg.popup_get_file('保存先を選択してください', default_path="../", save_as=True, multiple_files=False, file_types=(("PNG", "*.png"),("svg", "*.svg"),("JPG","*.jpg"),("TIFF", "*.tif"),("PDF", "*.pdf"),))
             if path is None:
                 continue
             fig.savefig(fname=path, bbox_inches="tight")
