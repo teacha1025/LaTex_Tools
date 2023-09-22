@@ -5,10 +5,10 @@ import japanize_matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 def make_dpi_aware():
-  import ctypes
-  import platform
-  if int(platform.release()) >= 8:
-    ctypes.windll.shcore.SetProcessDpiAwareness(True)
+    import ctypes
+    import platform
+    if int(platform.release()) >= 8:
+        ctypes.windll.shcore.SetProcessDpiAwareness(True)
 make_dpi_aware()
 
 def draw_figure(canvas, figure):
@@ -221,7 +221,7 @@ while flag:
     
     fig_agg = draw_figure(window['-CANVAS-'].TKCanvas, fig)
     ax1 = fig.add_subplot(1,1,1)
-
+    
     if len(data) != 0:
         fig.clear()
         ax1 = fig.add_subplot(1,1,1)
