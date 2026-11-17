@@ -3,6 +3,9 @@ import PySimpleGUI as sg
 import matplotlib.pyplot as plt
 import japanize_matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from scipy.interpolate import interp1d
+
+import func_fit
 
 def make_dpi_aware():
     import ctypes
@@ -39,6 +42,20 @@ def plot(data:[]):
         ax2.set_ylim(y2_min, y2_max)
     fig_agg.draw()
     x = np.array(data[x_id].data,dtype=np.float64)
+
+    if x_log:
+        ax1.set_xscale('log')
+    else:
+        ax1.set_xscale('linear')
+    if y1_log:
+        ax1.set_yscale('log')
+    else:
+        ax1.set_yscale('linear')
+    if flag:
+        if y2_log:
+            ax2.set_yscale('log')
+        else:
+            ax2.set_yscale('linear')
     
     for i in range(len(data)):
         if i is x_id:
@@ -63,7 +80,20 @@ def plot(data:[]):
     else:
         plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0, fontsize=12, prop = {"family" : "MS Gothic"})            
 
-    
+    for i in range(len(data)):
+        if i is x_id:
+            continue
+        y= np.array(data[i].data,dtype=np.float64)
+        xx=np.arange(x_min,x_max,(x_max-x_min)/100)
+        if data[i].enable:
+            if data[i].axis2:
+                #f = interp1d(x, y, kind='cubic')
+                f=func_fit.fit_func(x,y,xx,7)
+                ax2.plot(xx, f, color=data[i].color, linestyle='dashed')
+            else:
+                #f = interp1d(x, y, kind='cubic')
+                f=func_fit.fit_func(x,y,xx,7)
+                ax1.plot(xx, f, color=data[i].color, linestyle='dashed')
     
     plt.tight_layout()
     fig_agg.draw()
@@ -193,6 +223,10 @@ y1_max = 100.0
 y2_min = 0.0
 y2_max = 100.0
 
+x_log = False
+y1_log = False
+y2_log = False
+
 x_label = 'X軸'
 y1_label = 'Y軸1'
 y2_label = 'Y軸2'
@@ -200,18 +234,18 @@ y2_label = 'Y軸2'
 
 while flag:
     # レイアウト作成
-    xaxis = sg.Frame('',[[sg.Text('X軸', font=('メイリオ', 12))],[sg.InputText(x_min, key='-X_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(x_max, key='-X_MAX-', size =(5,1))],[sg.InputText(x_label, key='-X_LABEL-', size =(12,1))]])
-    y1axis = sg.Frame('',[[sg.Text('Y軸1', font=('メイリオ', 12))],[sg.InputText(y1_min, key='-Y1_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(y1_max, key='-Y1_MAX-', size =(5,1))],[sg.InputText(y1_label, key='-Y1_LABEL-', size =(12,1))]])
-    y2axis = sg.Frame('',[[sg.Text('Y軸2', font=('メイリオ', 12))],[sg.InputText(y2_min, key='-Y2_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(y2_max, key='-Y2_MAX-', size =(5,1))],[sg.InputText(y2_label, key='-Y2_LABEL-', size =(12,1))]])
+    xaxis = sg.Frame('',[[sg.Text('X軸', font=('メイリオ', 12))],[sg.InputText(x_min, key='-X_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(x_max, key='-X_MAX-', size =(5,1))],[sg.InputText(x_label, key='-X_LABEL-', size =(12,1))],[sg.Checkbox('対数軸', key='-X_LOG-')]])
+    y1axis = sg.Frame('',[[sg.Text('Y軸1', font=('メイリオ', 12))],[sg.InputText(y1_min, key='-Y1_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(y1_max, key='-Y1_MAX-', size =(5,1))],[sg.InputText(y1_label, key='-Y1_LABEL-', size =(12,1))],[sg.Checkbox('対数軸', key='-Y1_LOG-')]])
+    y2axis = sg.Frame('',[[sg.Text('Y軸2', font=('メイリオ', 12))],[sg.InputText(y2_min, key='-Y2_MIN-', size =(5,1)), sg.Text('～'), sg.InputText(y2_max, key='-Y2_MAX-', size =(5,1))],[sg.InputText(y2_label, key='-Y2_LABEL-', size =(12,1))],[sg.Checkbox('対数軸', key='-Y2_LOG-')]])
     buttons = sg.Frame('',[[sg.Button('クリア', key='Clear')], [sg.Button('適用', key='Load')]])
     frameL = sg.Frame('',[[sg.Canvas(key='-CANVAS-')], 
-                            [buttons,xaxis,y1axis,y2axis]],size=(960,760))
+                            [buttons,xaxis,y1axis,y2axis]],size=(960,800))
     
     col = [[sg.Text(d.label, font=('メイリオ', 10), size=(12,1), key=f'Label_{d.id}'), sg.Button("設定", font=('メイリオ', 8), key=f'Edit_{d.id}')] for d in data]
     frameR = sg.Frame('',[
             [sg.Button('読込', key='import'), sg.Button('保存', key='Save')],
             [sg.Col(col, scrollable=True, vertical_scroll_only=True, size=(240, 640))]
-        ],size=(250,760))
+        ],size=(250,800))
     layout = [[frameL, frameR]]
 
     window = sg.Window('グラフ描画', layout, finalize=True, element_justification='center', font='Monospace 18')
@@ -262,6 +296,10 @@ while flag:
             y1_max = float(values['-Y1_MAX-'])
             y2_min = float(values['-Y2_MIN-'])
             y2_max = float(values['-Y2_MAX-'])
+
+            x_log = values['-X_LOG-']
+            y1_log = values['-Y1_LOG-']
+            y2_log = values['-Y2_LOG-']
             
             x_label = values['-X_LABEL-']
             y1_label = values['-Y1_LABEL-']
@@ -282,6 +320,10 @@ while flag:
             y1_max = float(values['-Y1_MAX-'])
             y2_min = float(values['-Y2_MIN-'])
             y2_max = float(values['-Y2_MAX-'])
+
+            x_log = values['-X_LOG-']
+            y1_log = values['-Y1_LOG-']
+            y2_log = values['-Y2_LOG-']
             
             x_label = values['-X_LABEL-']
             y1_label = values['-Y1_LABEL-']
